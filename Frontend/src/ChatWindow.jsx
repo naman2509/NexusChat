@@ -110,8 +110,7 @@ function ChatWindow() {
           </div>
         </div>
         <p className="info">
-          SigmaGPT can make mistakes. Check important info. See Cookie
-          Preferences.
+          NexusChat can make mistakes. Check important info.
         </p>
       </div>
     </div>

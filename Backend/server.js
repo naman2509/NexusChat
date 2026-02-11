@@ -4,6 +4,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import chatRoutes from "./routes/chat.js";
 
+console.log("GROQ_API_KEY loaded:", process.env.GROQ_API_KEY ? "YES ✓" : "NO ✗");
+
 const app = express();
 const port = process.env.PORT || 8080;
 

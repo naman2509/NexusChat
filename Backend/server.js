@@ -1,35 +1,50 @@
 import express from "express";
-import "dotenv/config";
-import cors from "cors";
 import mongoose from "mongoose";
-import chatRoutes from "./routes/chat.js";
+import cors from "cors";
+import dotenv from "dotenv";
+import chatRoutes from "./routes/chat.js"; // Your routes file
 
-console.log("GROQ_API_KEY loaded:", process.env.GROQ_API_KEY ? "YES ✓" : "NO ✗");
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
-app.use(express.json());
+// CORS Configuration - IMPORTANT!
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://nexuschat-kxxl.onrender.com',  // Your frontend URL
+    'http://localhost:3000',
+    'https://your-frontend-app.onrender.com' // Add your deployed frontend URL
   ],
   credentials: true
 }));
 
+app.use(express.json());
+
+// MongoDB Connection with better error handling
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('✅ MongoDB Connected Successfully');
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB Connection Error:', err);
+    process.exit(1); // Exit if DB connection fails
+  });
+
+// Routes
 app.use("/api", chatRoutes);
 
-const connectDB = async () => {
-  try{
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Successfully connected to DB");
-  }catch(err){
-    console.log("Failed to connect with the database", err.message);
-  }
-}
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.json({ status: "Server is running", timestamp: new Date() });
+});
 
-app.listen(port, () => {
-  console.log(`server is running on the ${port} port`);
-  connectDB();
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
